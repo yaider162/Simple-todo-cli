@@ -7,7 +7,7 @@ fn main() -> Result<(), Error>{
     // Los args 
     //let args = Args::parse();
     let mut storage = storage::Storage::new()?;
-    storage.add(String::from("Leer la ciudad y los perros"));
+    storage::Storage::print_tasks();
     Ok(())
 }
 

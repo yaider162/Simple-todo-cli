@@ -4,6 +4,7 @@ use crate::todo::Task;
 use std::fs::{self, File};
 use std::io::{BufWriter};
 use std::path::Path;
+use colored::Colorize;
 
 pub struct Storage {
     id: i32,
@@ -37,6 +38,39 @@ impl Storage {
         let tasks: Vec<Task> = serde_json::from_str(&file)?;
 
         Ok(tasks)
+    }
+
+    pub fn print_tasks() -> Result<(), std::io::Error>{
+        let mut tasks = Self::load_data()?;
+
+        if tasks.is_empty() {
+            println!("{}", "No tasks yet. Add one with your command.".yellow().bold());
+            return Ok(());
+        }
+
+        tasks.sort_by_key(|task| task.id);
+
+        println!("{}", "TODO LIST".bright_blue().bold());
+        println!("{}", "---------".bright_blue());
+
+        for task in tasks {
+            let status = if task.done {
+                "[x]".green().bold()
+            } else {
+                "[ ]".yellow().bold()
+            };
+
+            let id = format!("#{}", task.id).cyan().bold();
+            let title = if task.done {
+                task.title.dimmed()
+            } else {
+                task.title.white()
+            };
+
+            println!("{} {} {}", id, status, title);
+        }
+
+        Ok(())
     }
 
     fn get_last_id() -> Result<i32, Error>{
