@@ -1,3 +1,16 @@
+# Todo
+
+Cli simple de TODO escrita en Rust 
+
+Compilar:
+```
+cargo build
+```
+
+Ejecutar:
+```
+cargo run
+```
 Estructura del proyecto
 
 todo-cli/
