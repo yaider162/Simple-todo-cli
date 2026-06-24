@@ -23,6 +23,11 @@ fn main() -> Result<(), Error>{
         storage.mark_complete(args.mark)?;
         println!("Tarea {} marcada como completada.", args.mark);
     }
+
+    if args.remove !=0{
+        storage.remove_by_id(args.remove as usize)?;
+        println!("Tarea {} ELIMINADA.", args.remove);
+    }
     Ok(())
 }
 
@@ -41,4 +46,8 @@ fn main() -> Result<(), Error>{
     /// Marcar la tarea como completada con id
     #[arg(short, long, default_value_t = 0)]
     mark: i32,
+
+    /// Eliminar la tarea con id
+    #[arg(short, long, default_value_t = 0)]
+    remove: i32,
 }

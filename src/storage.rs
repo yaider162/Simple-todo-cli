@@ -123,4 +123,11 @@ impl Storage {
             tasks.iter().map(|t| t.id).max().unwrap_or(0)
         )
     }
+
+    pub fn remove_by_id(&self, id: usize) -> Result<(), std::io::Error> {
+        let mut tasks = Self::load_data()?;
+        tasks.remove(id-1);
+        self.save(tasks)?;
+        Ok(())
+    }
 }
