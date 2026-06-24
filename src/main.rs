@@ -7,13 +7,16 @@ fn main() -> Result<(), Error>{
     // Los args 
     let args = Args::parse();
     let mut storage = storage::Storage::new()?;
-    if args.ls {storage.print_tasks()?;}
 
-    if args.count > 0 && !args.add.is_empty() {
-        for _ in 0..args.count {
-            storage.add(&args.add)?;
-            println!("Tarea {} añadida", args.mark);
-        }
+    match args.ls.as_deref(){
+        Some("all") => {storage.print_tasks()?;}
+        Some("pending") => {storage.print_pending_tasks()?;}
+        _ => {}
+    }
+
+    if !args.add.is_empty() {
+        storage.add(&args.add)?;
+        println!("Tarea {} añadida", storage::Storage::get_last_id()?);
     }
 
     if args.mark != 0 { 
@@ -27,9 +30,9 @@ fn main() -> Result<(), Error>{
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
  struct Args {
-    /// Imprimir las tareas por completar
-    #[arg(short='l', long,)]
-    ls: bool,
+    /// Imprimir las tareas por completar (all, pending)
+    #[arg(short='l', long, num_args= 0..=1, default_missing_value = "all")]
+    ls: Option<String>,
 
     /// Añadir nueva tarea con "" para que no haya problemas
     #[arg(short, long, default_value_t=String::from(""))]
@@ -38,8 +41,4 @@ fn main() -> Result<(), Error>{
     /// Marcar la tarea como completada con id
     #[arg(short, long, default_value_t = 0)]
     mark: i32,
-
-    /// Number of times to greet
-    #[arg(short, long, default_value_t = 0)]
-    count: i32,
 }

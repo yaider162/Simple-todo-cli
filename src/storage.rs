@@ -48,6 +48,34 @@ impl Storage {
         Ok(tasks)
     }
 
+    pub fn print_pending_tasks(&self) -> Result<(), std::io::Error> {
+        let mut tasks = Self::load_data()?;
+
+        if tasks.is_empty() {
+            println!("{}", "No tasks yet. Add one with your command.".yellow().bold());
+            return Ok(());
+        }
+
+        tasks.sort_by_key(|task| task.id);
+
+        println!("{}", "TODO LIST - Pending".bright_blue().bold());
+        println!("{}", "---------".bright_blue());
+
+        for task in tasks {
+            if task.done {continue;}
+            let status = "[ ]".yellow().bold();
+            let id = format!("#{}", task.id).cyan().bold();
+            let title = if task.done {
+                task.title.dimmed()
+            } else {
+                task.title.white()
+            };
+
+            println!("{} {} {}", id, status, title);
+        }
+
+        Ok(())
+    } 
     pub fn print_tasks(&self) -> Result<(), std::io::Error>{
         let mut tasks = Self::load_data()?;
 
@@ -89,7 +117,7 @@ impl Storage {
         let _ = self.save(tasks);
         Ok(())
     }
-    fn get_last_id() -> Result<i32, Error>{
+    pub fn get_last_id() -> Result<i32, Error>{
         let tasks = Self::load_data()?;
         Ok(
             tasks.iter().map(|t| t.id).max().unwrap_or(0)
