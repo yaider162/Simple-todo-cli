@@ -16,9 +16,10 @@ impl Storage {
         Ok(Storage {id: last_id+1})
     }
 
-    pub fn add(&mut self, title: String) -> Result<(), std::io::Error>{
+    pub fn add(&mut self, title: &String) -> Result<(), std::io::Error>{
+        if title.is_empty() {return Ok(());}
         let mut tasks = Self::load_data()?;
-        let task = Task::new(self.id, title, false);
+        let task = Task::new(self.id, title.clone(), false);
         tasks.push(task);
 
         let file = File::create("tasks.json")?;
@@ -26,6 +27,13 @@ impl Storage {
         let _ = serde_json::to_writer_pretty(writer, &tasks);
 
         self.id+=1;
+        Ok(())
+    }
+
+    pub fn save(&self, tasks: Vec<Task>) -> Result<(), std::io::Error>{
+        let file = File::create("tasks.json")?;
+        let writer = BufWriter::new(file);
+        let _ = serde_json::to_writer_pretty(writer, &tasks);
         Ok(())
     }
 
@@ -40,7 +48,7 @@ impl Storage {
         Ok(tasks)
     }
 
-    pub fn print_tasks() -> Result<(), std::io::Error>{
+    pub fn print_tasks(&self) -> Result<(), std::io::Error>{
         let mut tasks = Self::load_data()?;
 
         if tasks.is_empty() {
@@ -73,6 +81,14 @@ impl Storage {
         Ok(())
     }
 
+    pub fn mark_complete(&self, id:i32) -> Result<(), Error>{
+        let mut tasks = Self::load_data()?;
+        for task in &mut tasks {
+            if task.id==id {task.done=true;}
+        }
+        let _ = self.save(tasks);
+        Ok(())
+    }
     fn get_last_id() -> Result<i32, Error>{
         let tasks = Self::load_data()?;
         Ok(
